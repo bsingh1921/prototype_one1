@@ -1,0 +1,347 @@
+/* ─────────────────────────────────────────────────────────
+   Left / Right — fixed center index, detail cols expand outward
+   Wikipedia typography. Black on white. No colour.
+───────────────────────────────────────────────────────── */
+
+@import url('https://fonts.googleapis.com/css2?family=Linux+Libertine+O:ital,wght@0,400;0,700;1,400&display=swap');
+
+:root {
+  --font:     'Linux Libertine O', 'Linux Libertine', Georgia, 'Times New Roman', serif;
+  --font-ui:  -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  --fs:       clamp(12px, 1.25vw, 14px);
+  --lh:       1.65;
+  --center-w: clamp(300px, 46vw, 560px); /* total width of the center index */
+  --col-w:    clamp(240px, 27vw, 360px); /* width of each detail column */
+  --anim:     0.42s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: #fff;
+  color: #000;
+  font-family: var(--font);
+}
+
+/* ══════════════════════════════════
+   CENTER INDEX  (fixed, full-height)
+══════════════════════════════════ */
+
+#center {
+  position: fixed;
+  top: 0; bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: var(--center-w);
+  display: flex;
+  flex-direction: column;
+  z-index: 30;
+  background: #fff;
+  border-left:  1px solid #000;
+  border-right: 1px solid #000;
+}
+
+/* Centered title at top of center panel */
+#center-title {
+  font-family: var(--font);
+  font-size: clamp(14px, 1.6vw, 18px);
+  font-weight: bold;
+  text-align: center;
+  padding: 1rem 1rem 0.75rem;
+  border-bottom: 1px solid #000;
+  flex-shrink: 0;
+  letter-spacing: 0.01em;
+}
+
+/* Row of the two index halves */
+#center-columns {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* Thin spine line at exact center */
+#spine {
+  width: 1px;
+  background: #000;
+  flex-shrink: 0;
+  align-self: stretch;
+}
+
+/* Each half of the center */
+.center-half {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* Scrollable list of terms */
+.index-list {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: #ccc #fff;
+  padding: 0.4rem 0 2rem;
+}
+
+/* Each term in the index */
+.index-entry {
+  display: block;
+  padding: 0.45rem 1rem;
+  font-family: var(--font);
+  font-size: var(--fs);
+  line-height: var(--lh);
+  cursor: pointer;
+  font-weight: italic;
+  text-underline-offset: 2px;
+  text-decoration-color: #ccc;
+  border: none;
+  background: none;
+  width: 100%;
+  color: #3366CC;
+  transition: text-decoration-color 0.15s, background 0.12s;
+}
+
+.index-entry:hover {
+  font-weight: bold;
+}
+
+.index-entry.active {
+  text-decoration-color: #000;
+  background: #efefef;
+  font-style: italic;
+}
+
+#center-left  .index-entry { text-align: right; }
+#center-right .index-entry { text-align: left;  }
+
+/* ══════════════════════════════════
+   DETAIL STAGES (left & right of center)
+══════════════════════════════════ */
+
+/* Each stage fills the space between the center and the viewport edge */
+#left-detail-stage,
+#right-detail-stage {
+  position: fixed;
+  top: 0; bottom: 0;
+  z-index: 20;
+  overflow: hidden;
+}
+
+#left-detail-stage {
+  /* sits to the left of center */
+  right: calc(50% + var(--center-w) / 2);
+  left: 0;
+}
+
+#right-detail-stage {
+  /* sits to the right of center */
+  left: calc(50% + var(--center-w) / 2);
+  right: 0;
+}
+
+/* ── STRIPS (horizontally scrollable row of columns) ── */
+
+#left-detail-strip,
+#right-detail-strip {
+  position: absolute;
+  top: 0; bottom: 0;
+  display: flex;
+  flex-direction: row;
+  transition: transform var(--anim);
+  will-change: transform;
+}
+
+/* Left strip: anchor LEFT edge to stage's right (= center border).
+   flex-direction: row-reverse so first child = rightmost = nearest center.
+   We translate negatively to reveal older (further-left) columns. */
+#left-detail-strip {
+  right: 0;
+  left: auto;
+  flex-direction: row-reverse;
+}
+
+/* Right strip: grows rightward. Anchor left edge to stage's left (= center border).
+   Newest column is leftmost (nearest center). */
+#right-detail-strip {
+  left: 0;
+  flex-direction: row; /* first child = leftmost = nearest center */
+}
+
+/* ── DETAIL COLUMNS ── */
+
+.detail-col {
+  width: var(--col-w);
+  height: 100%;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  border-left:  1px solid #d8d8d8;
+  border-right: 1px solid #d8d8d8;
+  background: #fff;
+}
+
+/* Slide-in animations */
+#left-detail-strip .detail-col {
+  animation: slide-in-left var(--anim) both;
+}
+#right-detail-strip .detail-col {
+  animation: slide-in-right var(--anim) both;
+}
+
+@keyframes slide-in-left {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(-20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* Column header */
+.detail-col-header {
+  padding: 1rem 2rem 0.6rem 1rem; /* right padding leaves room for close btn */
+  border-bottom: 1px solid #000;
+  flex-shrink: 0;
+  position: relative;
+}
+
+/* Close button */
+.detail-col-close {
+  position: absolute;
+  top: 0.65rem;
+  right: 0.55rem;
+  width: 20px;
+  height: 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  color: #aaa;
+  line-height: 1;
+  padding: 0;
+  transition: color 0.15s;
+}
+.detail-col-close:hover { color: #000; }
+
+.detail-col-eyebrow {
+  font-family: var(--font-ui);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #888;
+  margin-bottom: 0.2rem;
+}
+
+.detail-col-title {
+  font-family: var(--font);
+  font-size: clamp(13px, 1.5vw, 16px);
+  font-weight: bold;
+  line-height: 1.25;
+}
+
+/* Column body — scrolls vertically */
+.detail-col-body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: #ccc #fff;
+  padding: 1rem;
+}
+
+/* Body text */
+.detail-text {
+  font-family: var(--font);
+  font-size: var(--fs);
+  line-height: var(--lh);
+  color: #111;
+}
+
+.detail-text p + p { margin-top: 0.8em; }
+
+/* "See also" sub-entries inside a detail col */
+.see-also-label {
+  font-family: var(--font-ui);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #888;
+  margin-top: 1.4rem;
+  margin-bottom: 0.3rem;
+  display: block;
+  border-top: 1px solid #000;
+  padding-top: 0.7rem;
+}
+
+.sub-entry {
+  display: block;
+  width: 100%;
+  background: none;
+  border: none;
+  text-align: left;
+  font-family: var(--font);
+  font-size: var(--fs);
+  line-height: var(--lh);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: #bbb;
+  cursor: pointer;
+  padding: 0.3rem 0;
+  color: #000;
+  transition: text-decoration-color 0.15s;
+}
+
+.sub-entry:hover {
+  text-decoration-color: #000;
+}
+
+/* ── FADE EDGES ── */
+#left-detail-stage::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; bottom: 0;
+  width: 40px;
+  background: linear-gradient(to right, #fff, transparent);
+  z-index: 5;
+  pointer-events: none;
+}
+
+#right-detail-stage::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: 40px;
+  background: linear-gradient(to left, #fff, transparent);
+  z-index: 5;
+  pointer-events: none;
+}
+
+/* ── EMPTY STATE placeholder ── */
+.stage-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-ui);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #ccc;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+.stage-placeholder.hidden { opacity: 0; }

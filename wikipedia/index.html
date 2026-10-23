@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Left / Right</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Detail columns that accumulate to the LEFT (newest nearest spine) -->
+  <div id="left-detail-stage">
+    <div id="left-detail-strip"></div>
+  </div>
+
+  <!-- Fixed center index -->
+  <div id="center">
+    <div id="center-title">Disambiguation</div>
+    <div id="center-columns">
+      <div id="center-left" class="center-half">
+        <div id="left-index-list" class="index-list"></div>
+      </div>
+      <div id="spine"></div>
+      <div id="center-right" class="center-half">
+        <div id="right-index-list" class="index-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail columns that accumulate to the RIGHT (newest nearest spine) -->
+  <div id="right-detail-stage">
+    <div id="right-detail-strip"></div>
+  </div>
+
+<script src="script.js"></script>
+</body>
+</html>
